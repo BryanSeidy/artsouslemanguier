@@ -2,6 +2,10 @@
    Tokens derived from the real logo (public/images/logo.jpg): deep forest green #104020,
    foliage green #307050. Warm neutrals, dark ink, discrete earth accent.
    System fonts only — no external requests. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   /* Color */
   --color-ink: #1d1b17;

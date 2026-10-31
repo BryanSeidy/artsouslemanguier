@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next';
+import { SITE } from '@/data/site';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = 'https://artsouslemanguier.com';
+  const base = SITE.url;
   return [
     {
       url: base,

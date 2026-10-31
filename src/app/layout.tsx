@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { SITE } from '@/data/site';
 import '@/app/globals.css';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE.url),
   title: {
     template: '%s — Art Sous Le Manguier',
     default: 'Art Sous Le Manguier',
@@ -15,6 +17,11 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'fr_FR',
     siteName: 'Art Sous Le Manguier',
+    url: SITE.url,
+  },
+  icons: {
+    icon: '/favicon.png',
+    apple: '/favicon.png',
   },
 };
 

@@ -1,14 +1,15 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState, useEffect, useRef } from 'react';
 import SkipLink from './SkipLink';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 const NAV = [
   { href: '/', label: 'Accueil' },
-  { href: '/emissions', label: '\u00c9mission / Archives' },
-  { href: '/a-propos', label: '\u00c0 propos' },
+  { href: '/emissions', label: 'Émission / Archives' },
+  { href: '/a-propos', label: 'À propos' },
   { href: '/contact', label: 'Contact' },
 ];
 
@@ -24,12 +25,26 @@ export default function Header() {
     setOpen(false);
   }, [pathname]);
 
-  const toggle = () => setOpen((prev) => !prev);
-  const close = () => setOpen(false);
+  const toggle = useCallback(() => setOpen((prev) => !prev), []);
+  const close = useCallback(() => setOpen(false), []);
 
-  // Trap focus inside mobile menu while open
+  // Escape key closes the mobile menu
   useEffect(() => {
-    if (!open) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && open) {
+        close();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [open, close]);
+
+  // When menu opens, focus the first focusable item; when closed, return focus to button
+  useEffect(() => {
+    if (!open) {
+      btnRef.current?.focus();
+      return;
+    }
     const focusables = menuRef.current?.querySelectorAll<HTMLElement>(
       'a[href], button'
     );
@@ -57,12 +72,11 @@ export default function Header() {
             className="flex items-center gap-3 text-nowrap"
             aria-label="Art Sous Le Manguier — accueil"
           >
-            <img
+            <Image
               src="/images/logo.jpg"
               alt=""
               width={48}
               height={48}
-              decoding="async"
               className="block"
               style={{
                 backgroundColor: '#104020',
@@ -132,7 +146,7 @@ export default function Header() {
           </button>
         </div>
 
-        {/* Mobile menu panel */}
+        {/* Mobile menu panel — hidden from keyboard when closed */}
         <div
           ref={menuRef}
           id="mobile-menu"
@@ -141,6 +155,7 @@ export default function Header() {
               ? 'max-h-[calc(100vh-64px)] overflow-y-auto opacity-100'
               : 'max-h-0 overflow-hidden opacity-0 transition-opacity duration-150 ease-out'
           }`}
+          hidden={!open}
           style={{
             paddingTop: open ? 'var(--space-4)' : 0,
             paddingBottom: open ? 'var(--space-6)' : 0,

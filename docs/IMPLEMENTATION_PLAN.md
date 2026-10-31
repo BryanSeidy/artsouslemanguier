@@ -1,28 +1,55 @@
-# Plan d'implémentation — Art Sous Le Manguier (MVP)
+# Plan d'implémentation — Art Sous Le Manguier (MVP corrigé et enrichi)
 
-## État du dépôt avant démarrage
-Dépôt essentiellement vide : `README.md` (une ligne), `asm-site-cntx.md` (rapport de recherche/contexte), `asm.jpg` (logo couleur), `asm.png` (version monochrome). Aucune `package.json`, aucun framework, aucun site existant à préserver.
+## État du dépôt avant cette phase
+Commit `38cfe57` (branche `main`). Première implémentation MVP Next.js 15 + TypeScript + Tailwind CSS. Quatre pages : `/`, `/emissions`, `/a-propos`, `/contact`.
 
-## Décisions techniques (pragmatiques, nul coût)
-- Stack : **Next.js 15 (App Router)**, TypeScript, Tailwind CSS, rendu **statique** (`output: 'standalone'`), pas de backend, pas de base de données, pas de CMS.
-- Hébergement : statique, déployable n'importe où (Vercel, Netlify, pages statiques). Aucun service payant, aucune clé API.
-- Polices : **système uniquement** (Georgia pour les affichages, système sans-serif pour le corps) — aucune requête externe de police.
-- Images : logo de l'association (`public/images/logo.jpg`, issu du dépôt) uniquement. Aucune image tierce, aucune illustration générée, aucune fausse œuvre.
-- Données : source locale typée (`src/data/site.ts`, `src/data/episodes.ts`), facile à éditer, chaque fait sourcé.
+## Corrections P0/P1 appliquées (audit Claude)
 
-## Pages livrées (MVP)
-1. `/` — Accueil : identité (logo réel), titre éditorial, présentation fidèle, repères datés et sourcés, appel à découvrir l'émission, aperçu mission, aperçu initiatives documentées, contact.
-2. `/emissions` — Émission / Archives : contexte, repères (54 épisodes en 2022, saison 6 début 5 août 2023), registre d'épisodes **intentionnellement vide** (aucun épisode inventé), état vide éditorial.
-3. `/a-propos` — À propos : contexte, démarche, mission, fondatrice (Louise Abomba) avec attribution, citation attribuée, initiatives.
-4. `/contact` — Contact : aucun canal inventé (pas d'e-mail/téléphone/adresse/lien social non vérifié), explication de l'absence de formulaire d'envoi.
-- Métadonnées SEO par page, `sitemap.xml`, `robots.txt`.
+| Problème | Correction |
+|---|---|
+| Tailwind — pas de directives `@tailwind` | Ajout de `@tailwind base`, `@tailwind components`, `@tailwind utilities` dans `globals.css` |
+| Unicode — séquences `\uXXXX` littérales dans le JSX | Remplacement par des caractères Unicode réels dans tous les fichiers source |
+| SkipLink — ne fonctionne que sur `/`, pas de cible focusable | SkipLink présent sur toutes les pages, `tabIndex={-1}` sur `#main-content` |
+| Menu mobile — pas de fermeture Échap, liens accessibles quand fermé | Fermeture avec Échap, attribut `hidden` quand fermé, `aria-expanded`/`aria-controls` |
+| Focus piégé (non modal) | Supprimé ; focus revient au bouton quand le menu se ferme |
+| Vérité éditoriale — claims non vérifiés sur Doual'art | Corrigé : Doual'art = lieu de naissance, pas de domiciliation |
+| Notes internes exposées au public | Supprimées ("à confirmer", "statut documenté", etc.) |
+| Contact — canaux inexistants | Aucun bouton vers des canaux non confirmés |
+| SEO — title faible, pas de metadataBase, pas de favicon | `metadataBase` ajouté, favicon déclaré, titles améliorés, canonical URLs |
+| Lint — `` au lieu de `<Image>` | Remplacé par `next/image` dans Header et Footer |
 
-## Ce qui est délibérément exclu (MVP)
-Aucun blog, CMS, authentification, base de données, système de dons, newsletter, billetterie, tableau de bord, traduction complète, formulaire simulant un envoi, tracking, carrousel, animations longues.
+## Nouvelles fonctionnalités P2
 
-## Livrables de documentation
-- `docs/CONTENT_AUDIT.md` — faits, contenus et médias vérifiés avec sources.
-- `README.md` — commande de lancement local et présentation.
+### Architecture vidéo
+- `src/data/videos.ts` — source de données centralisée, typée, vide par défaut
+- `src/components/video/VideoPlayer.tsx` — résolution de plateforme, click-to-load
+- `src/components/video/YouTubePlayer.tsx` — youtube-nocookie.com, pas d'autoplay, lien YouTube
+- `src/components/video/VimeoPlayer.tsx` — player.vimeo.com, lien Vimeo
+- `src/components/video/TikTokPlayer.tsx` — lecteur officiel TikTok Embed
+- `src/components/video/ExternalVideoCard.tsx` — carte éditoriale sans iframe
+- `src/components/video/VideoStoryCard.tsx` — carte individuelle avec couverture
+- `src/components/video/VideoGrid.tsx` — grille asymétrique (premier élément plus grand)
+- `src/components/video/VideoFeatured.tsx` — composition éditoriale large pour vidéo en vedette
+- `docs/ADDING_VIDEOS.md` — guide d'ajout d'une nouvelle vidéo
+
+### Pages
+- `/` — Accueil : Hero, vidéo en vedette (si `featured`), mission, initiatives, contact
+- `/emissions` — Émission / Archives : introduction, vidéo en vedette, grille d'archives, état vide
+- `/emissions/[slug]` — Détail d'émission : lecteur, titre, description, artiste, crédits, source, vidéos associées
+- `/a-propos` — À propos : contexte, démarche, mission, fondatrice, initiatives
+- `/contact` — Contact : aucun canal inventé, expérience honnête
+
+### Métadonnées SEO
+- `metadataBase` centralisé via `SITE.url`
+- `alternates.canonical` sur chaque page
+- Favicon déclaré (`/favicon.png`)
+- `sitemap.xml` et `robots.ts` utilisant `SITE.url`
+
+## Stack
+- Next.js 15 (App Router), TypeScript, Tailwind CSS v3
+- Rendu statique, pas de backend, pas de base de données, pas de CMS
+- Polices système uniquement (zéro requête externe de police)
+- Aucune dépendance payante, aucune clé API
 
 ## Commandes
 - `npm run dev` — serveur local (http://localhost:3000)
@@ -30,8 +57,8 @@ Aucun blog, CMS, authentification, base de données, système de dons, newslette
 - `npm run start` — serveur de production (après build)
 - `npx eslint src/` — lint
 
-## Limites connues à la livraison
-- Le chiffre des épisodes (54 en 2022) est historique et daté ; aucune activité en cours n'est affirmée sans preuve récente.
-- Aucun épisode, invité, date ni lien vidéo n'est publié tant qu'il n'est pas confirmé par l'association.
-- Aucun contact direct (e-mail, téléphone, adresse, réseau social) n'est publié tant qu'il n'est pas vérifié.
-- Le rendu visuel n'a pas pu être contrôlé dans un navigateur de test aux largeurs 360/768/1440 (navigateur indisponible dans cet environnement) ; le code utilise des breakpoints Tailwind (`md:`, `lg:`) et un layout fluide.
+## Limites connues
+- Aucune vidéo réelle n'est intégrée (le registre `VIDEOS` est vide en attendant confirmation par l'association).
+- Aucun contact direct (e-mail, téléphone, adresse, réseau social) n'est publié.
+- Le rendu visuel n'a pas pu être contrôlé dans un navigateur de test aux largeurs 360/768/1440 (navigateur indisponible dans cet environnement).
+- Le build de production réussit ; le lint est propre.

@@ -1,9 +1,17 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function SkipLink() {
-  const pathname = usePathname();
+  // Ensure the main content target can receive focus when the skip link is activated
+  useEffect(() => {
+    const main = document.getElementById('main-content');
+    if (main && main.tabIndex !== -1) {
+      main.tabIndex = -1;
+      main.setAttribute('data-tabindex-set', 'true');
+    }
+  }, []);
+
   return (
     <>
       <a
@@ -13,12 +21,6 @@ export default function SkipLink() {
       >
         Passer au contenu principal
       </a>
-      {/* Anchor target for the skip link and scroll-padding */}
-      {pathname === '/' && (
-        <h2 className="visually-hidden" id="main-content">
-          Contenu principal
-        </h2>
-      )}
     </>
   );
 }

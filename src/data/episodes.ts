@@ -6,19 +6,33 @@
 
 export interface Episode {
   id: string;
+  slug: string;
   title: string;
   season?: number;
-  date?: string; // ISO or display
+  episodeNumber?: number;
+  date?: string;
   guests?: string[];
   description?: string;
-  videoUrl?: string; // only when confirmed, original platform embed
-  source?: string;
+  shortDescription?: string;
+  videoUrl?: string;
+  platform?: 'youtube' | 'vimeo' | 'tiktok' | 'other';
+  providerVideoId?: string;
+  thumbnail?: string;
+  artistName?: string;
+  artistRole?: string;
+  duration?: string;
+  category?: string;
+  tags?: string[];
+  featured?: boolean;
+  orientation?: 'landscape' | 'portrait';
+  credits?: string;
+  externalSource?: string;
 }
 
 /* Empty register — do not invent episodes. */
 export const EPISODES: Episode[] = [];
 
 export const EPISODES_NOTE =
-  'La liste d\u00e9taill\u00e9e des \u00e9pisodes (titres, invit\u00e9s, dates, liens vid\u00e9o) ' +
-  'est \u00e0 constituer avec l\u2019association. Aucun \u00e9pisode n\u2019est invent\u00e9 ' +
-  'ni pr\u00e9sent\u00e9 comme r\u00e9el sur ce site.';
+  'La liste détaillée des épisodes (titres, invités, dates, liens vidéo) ' +
+  'est à constituer avec l’association. Aucun épisode n’est inventé ' +
+  'ni présenté comme réel sur ce site.';
