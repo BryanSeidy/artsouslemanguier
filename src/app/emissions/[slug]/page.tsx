@@ -1,12 +1,16 @@
 import { notFound } from 'next/navigation';
-import { VIDEOS } from '@/data/videos';
+import { fetchVideoBySlug, fetchRelatedVideos } from '@/lib/sanity/fetch';
 import VideoPlayer from '@/components/video/VideoPlayer';
 import VideoGrid from '@/components/video/VideoGrid';
 import Image from 'next/image';
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
-  const video = VIDEOS.find((v) => v.slug === slug);
+  const video = await fetchVideoBySlug(slug);
   if (!video) {
     return { title: 'Vidéo non trouvée — Art Sous Le Manguier' };
   }
@@ -17,25 +21,26 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       canonical: `https://artsouslemanguier.com/emissions/${video.slug}`,
     },
     openGraph: {
-      images: video.thumbnail ? [{ url: video.thumbnail, width: 1200, height: 630 }] : undefined,
+      images: video.externalSource
+        ? [{ url: video.externalSource, width: 1200, height: 630 }]
+        : undefined,
     },
   };
 }
 
-export default async function VideoDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function VideoDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
-  const video = VIDEOS.find((v) => v.slug === slug);
+  const video = await fetchVideoBySlug(slug);
   if (!video) {
     notFound();
   }
 
   // Related videos: same category or shared tags, excluding current
-  const related = VIDEOS.filter(
-    (v) =>
-      v.id !== video.id &&
-      ((video.category && v.category === video.category) ||
-        (video.tags && v.tags?.some((t) => video.tags?.includes(t))))
-  ).slice(0, 3);
+  const related = await fetchRelatedVideos(video.id);
 
   return (
     <div className="space-y-16">
@@ -48,9 +53,9 @@ export default async function VideoDetailPage({ params }: { params: Promise<{ sl
 
             <h1 className="mb-6 text-ink">{video.title}</h1>
 
-            {video.category && (
+            {video.shortDescription && (
               <p className="text-xs font-semibold uppercase tracking-wider text-green-dark mb-4">
-                {video.category}
+                {video.shortDescription}
               </p>
             )}
 

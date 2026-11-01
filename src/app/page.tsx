@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ORGANIZATION, SITE } from '@/data/site';
 import { VIDEOS } from '@/data/videos';
+import { fetchFeaturedVideo, fetchVideos } from '@/lib/sanity/fetch';
 import VideoFeatured from '@/components/video/VideoFeatured';
 import VideoGrid from '@/components/video/VideoGrid';
 
@@ -14,9 +15,11 @@ export const metadata = {
   },
 };
 
-export default function Home() {
-  const featured = VIDEOS.filter((v) => v.featured);
-  const rest = VIDEOS.filter((v) => !v.featured);
+export default async function Home() {
+  const [featured, rest] = await Promise.all([
+    fetchFeaturedVideo(),
+    fetchVideos().then((vs) => vs.filter((v) => !v.featured)),
+  ]);
 
   return (
     <div className="space-y-16">
@@ -65,7 +68,7 @@ export default function Home() {
         </div>
       </section>
 
-      {featured.length > 0 && <VideoFeatured video={featured[0]} />}
+      {featured && <VideoFeatured video={featured} />}
 
       <hr className="divider" />
 

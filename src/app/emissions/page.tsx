@@ -1,5 +1,6 @@
 import { ORGANIZATION } from '@/data/site';
 import { VIDEOS } from '@/data/videos';
+import { fetchVideos, fetchFeaturedVideo } from '@/lib/sanity/fetch';
 import VideoGrid from '@/components/video/VideoGrid';
 import VideoFeatured from '@/components/video/VideoFeatured';
 import { EPISODES_NOTE } from '@/data/episodes';
@@ -13,9 +14,12 @@ export const metadata = {
   },
 };
 
-export default function EmissionsPage() {
-  const featured = VIDEOS.filter((v) => v.featured);
-  const rest = VIDEOS.filter((v) => !v.featured);
+export default async function EmissionsPage() {
+  const [featured, allVideos] = await Promise.all([
+    fetchFeaturedVideo(),
+    fetchVideos(),
+  ]);
+  const rest = allVideos.filter((v) => !v.featured);
 
   return (
     <div className="space-y-16">
@@ -53,10 +57,10 @@ export default function EmissionsPage() {
         </div>
       </section>
 
-      {featured.length > 0 && (
+      {featured && (
         <section className="section">
           <div className="container">
-            <VideoFeatured video={featured[0]} />
+            <VideoFeatured video={featured} />
           </div>
         </section>
       )}

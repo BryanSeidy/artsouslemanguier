@@ -61,4 +61,11 @@ export default function VideoPlayer({
   );
 }
 
-type videoPlatform = 'youtube' | 'vimeo' | 'tiktok' | 'other';
+type videoPlatform =
+  | 'youtube'
+  | 'vimeo'
+  | 'tiktok'
+  | 'facebook'
+  | 'instagram'
+  | 'dailymotion'
+  | 'other';

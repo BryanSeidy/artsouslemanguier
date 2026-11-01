@@ -21,25 +21,48 @@ Un site sobre, élégant, rapide, accessible et responsive, sans backend, sans b
 - Aucune bibliothèque visuelle lourde, aucun formulaire simulant un envoi, aucun tracking
 - Aucune dépendance payante, aucune clé API
 
-## Pages
+## CMS — Sanity (headless, studio indépendant)
 
-| Page | Contenu |
-|---|---|
-| `/` | Accueil : identité, présentation, vidéo en vedette, démarche, initiatives, contact |
-| `/emissions` | Émission / Archives : contexte, repères, grille d'archives, état vide si aucune vidéo |
-| `/emissions/[slug]` | Détail d'émission : lecteur, titre, description, artiste, crédits, source, vidéos associées |
-| `/a-propos` | Contexte, démarche, mission, fondatrice, initiatives |
-| `/contact` | Aucun canal non vérifié publié, expérience honnête |
+Le Studio Sanity réside dans le dossier sibling `studio-art-sou-le-manguier/`. Il permet à l’équipe éditoriale de gérer les contenus sans toucher au code.
+
+### Structure du dossier
+
+```
+C:\Dev\PROJECT\
+  artsouslemanguier/          # Application Next.js (site public)
+  studio-art-sou-le-manguier/ # Sanity Studio (back-office indépendant)
+```
+
+### Schémas Sanity (dans studio-art-sou-le-manguier/schemas/documentTypes/)
+
+- `videoEpisode.ts` — Émissions et archives vidéo
+- `artist.ts` — Profils d’artistes
+- `sitePage.ts` — Pages institutionnelles
+- `project.ts` — Projets et initiatives
+- `article.ts` — Articles et actualités
+- `siteSettings.ts` — Paramètres globaux du site
+
+### Pages publiques
+
+| Page | Chemin | Contenu |
+|---|---|---|
+| `/` | Accueil | Identité, présentation, vidéo en vedette, démarche, initiatives, contact |
+| `/emissions` | Émission / Archives | Contexte, repères, grille d'archives, état vide si aucune vidéo |
+| `/emissions/[slug]` | Détail d'émission | Lecteur, titre, description, artiste, crédits, source, vidéos associées |
+| `/a-propos` | À propos | Contexte, démarche, mission, fondatrice, initiatives |
+| `/contact` | Contact | Aucun canal non vérifié publié, expérience honnête |
 
 ## Vidéos
 
-La collection audiovisuelle est déclarée dans `src/data/videos.ts`. Le registre est vide par défaut : aucune vidéo n’est inventée. Pour ajouter une vidéo, voir `docs/ADDING_VIDEOS.md`.
+La collection audiovisuelle est gérée via Sanity CMS. Le registre local `src/data/videos.ts` sert de fallback quand Sanity n’est pas configuré.
 
 Plateformes supportées : YouTube (youtube-nocookie.com), Vimeo, TikTok (lecteur officiel), autre (carte éditoriale avec lien externe).
 
 Approche click-to-load : aucune iframe chargée automatiquement.
 
 ## Commandes
+
+### Application Next.js (site public)
 
 ```bash
 # Installation
@@ -58,13 +81,44 @@ npm run start
 npx eslint src/
 ```
 
+### Sanity Studio (back-office)
+
+```bash
+# Depuis le dossier studio-art-sou-le-manguier/
+cd ../studio-art-sou-le-manguier
+
+# Installation des dépendances
+npm install
+
+# Authentification (nécessaire pour lier au projet cloud)
+sanity login
+
+# Lancer le Studio en local
+npm run dev
+
+# Déployer le Studio sur l'hébergement Sanity
+npx sanity@latest deploy
+```
+
+### Variables d'environnement
+
+Copiez `.env.example` vers `.env.local` et renseignez vos valeurs :
+
+```
+NEXT_PUBLIC_SANITY_PROJECT_ID=p1picvka
+NEXT_PUBLIC_SANITY_DATASET=production
+```
+
+Sans ces variables, le site fonctionne avec les données locales (fallback).
+
 ## Documentation
 
-- `docs/IMPLEMENTATION_PLAN.md` — plan d’implantation, corrections P0/P1, nouvelles fonctionnalités P2
-- `docs/CONTENT_AUDIT.md` — faits, contenus et médias vérifiés avec sources (hiérarchie de confiance)
-- `docs/ADDING_VIDEOS.md` — guide pour ajouter une nouvelle vidéo à la collection
-- `src/data/site.ts` — données organisationnelles typées et sourcées
-- `src/data/videos.ts` — registre des vidéos (vide en attendant confirmation)
+- `docs/CMS_SETUP.md` — Installation et configuration du CMS
+- `docs/CMS_USER_GUIDE.md` — Guide utilisateur pour l’équipe éditoriale
+- `docs/ADDING_VIDEOS.md` — Comment ajouter une vidéo
+- `docs/VIDEO_PROVIDER_SUPPORT.md` — Plateformes vidéo supportées
+- `docs/CMS_LIMITATIONS.md` — Limites du forfait Sanity gratuit
+- `docs/CONTENT_AUDIT.md` — Faits, contenus et médias vérifiés avec sources
 
 ## Identité visuelle
 
@@ -75,3 +129,4 @@ Palette issue du logo réel (`public/images/logo.jpg`) : vert forêt `#104020`, 
 - Aucun épisode, invité, date ni lien vidéo n’est publié tant qu’il n’est pas confirmé par l’association.
 - Aucun contact direct (e-mail, téléphone, adresse, réseau social) n’est publié tant qu’il n’est pas vérifié.
 - Le rendu visuel n’a pas pu être contrôlé dans un navigateur de test aux largeurs 360/768/1440 (navigateur indisponible dans cet environnement) ; le code utilise des breakpoints Tailwind (`md:`, `lg:`) et un layout fluide.
+- Le Studio Sanity nécessite une authentification (`sanity login`) pour être lié au projet cloud `p1picvka`.

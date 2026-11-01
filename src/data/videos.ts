@@ -9,7 +9,14 @@ export interface Video {
   title: string;
   shortDescription?: string;
   description?: string;
-  platform: 'youtube' | 'vimeo' | 'tiktok' | 'other';
+  platform:
+    | 'youtube'
+    | 'vimeo'
+    | 'tiktok'
+    | 'facebook'
+    | 'instagram'
+    | 'dailymotion'
+    | 'other';
   sourceUrl: string;
   providerVideoId?: string;
   thumbnail?: string;
